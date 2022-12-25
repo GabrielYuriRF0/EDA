@@ -1,0 +1,66 @@
+app.service("SessionService", function($cookies, $state) {
+
+    var self = this;
+
+    self.add = function(email, token) {
+        
+        var thirtyDays = 30;
+        var expireDate = new Date();
+        expireDate.setDate(expireDate.getDate() + thirtyDays);
+
+        $cookies.put('user_email', email, {'expires':expireDate});
+        $cookies.put('user_token', token, {'expires': expireDate});
+        self.userEmail = email;
+    };
+
+    self.isLogged = function() {
+
+        if ($cookies.get('user_email') == undefined ||
+            $cookies.get('user_token') == undefined) {
+            return false;
+        }
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                return true;
+            } else {
+                return false;
+            }
+        });
+    };
+
+    self.redirectIfNoLogged = function () {
+
+        if ($cookies.get('user_email') == undefined ||
+            $cookies.get('user_token') == undefined) {
+            $state.go('welcome');
+        }
+
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                $state.go('app.home');
+            } else {
+                $state.go('welcome');
+            }
+        });
+    };
+
+    self.destroy = function () {
+        firebase.auth().signOut().then(function() {
+            $cookies.remove('user_email');
+            $cookies.remove('user_token');
+        }, function(error) {
+
+        });
+    };
+
+    self.getUser = function() {
+        return self.userEmail.match(/[^@]*/i)[0];
+    };
+
+    (function main() {
+        self.redirectIfNoLogged();
+        self.userEmail = $cookies.get('user_email');
+    })();
+
+});

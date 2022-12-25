@@ -1,0 +1,11 @@
+app.controller('AppController', function ($scope, $timeout, $mdSidenav) {
+    
+    var self = this;
+
+    self.sideNavLock = false;
+
+    self.sideNavToggle = function() {
+        self.sideNavLock = !self.sideNavLock;
+    }
+    
+});

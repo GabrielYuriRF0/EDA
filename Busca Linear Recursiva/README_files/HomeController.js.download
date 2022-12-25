@@ -1,0 +1,145 @@
+app.controller("HomeController", function($scope, $http, $location, 
+	ActivityService, cfpLoadingBar, SessionService, ActivityStatusService, $mdSidenav) {
+
+	var self = this;
+	
+	self.activities = [];
+	self.search = "";
+
+	self.loadActivities = function() {
+
+		var p = ActivityService.getActivities();
+
+		p.then(function(info) {
+
+			//self.activities = angular.extend(info);
+            for(a in info) self.activities.push(info[a]);
+
+			self.categories = new Set();
+
+			for (var ac in self.activities) {
+				
+				ac = self.activities[ac];
+
+				tags = ac.tags;
+			
+				for (var tag in tags) {
+
+					self.categories.add(tags[tag]);
+				}
+
+				// not the best place to do this
+				// adding short descriptions
+				ac.shortDescription = 
+					ac.text.substring(1, 100) + ' ...';
+			
+			}
+
+			self.buttonMap = {}
+			self.categoriesOn = {}
+            self.categoriesOnLen = 0;
+			
+			self.categories.forEach(function(cat) {
+				self.buttonMap[cat] = true;
+				self.categoriesOn[cat] = cat;
+			});
+			
+			self.selectAllCategories();
+			
+		});
+	};
+
+	/*
+		toggles categories buttns.
+	*/
+	self.toggle = function(buttonName) {
+
+		if (self.buttonMap[buttonName] == true) {
+			delete self.categoriesOn[buttonName];
+		} else {
+			self.categoriesOn[buttonName] = buttonName;
+		}
+		self.buttonMap[buttonName] = !self.buttonMap[buttonName];
+	};
+
+	self.selectAllCategories = function() {
+		self.mainSwitchState = !self.mainSwitchState;
+
+		for (var buttonName in self.buttonMap) {
+			self.buttonMap[buttonName] = self.mainSwitchState;
+		}
+
+		if (self.mainSwitchState) {
+			self.categoriesOn = {};
+			self.categories.forEach(function(cat) {
+				self.categoriesOn[cat] = cat;
+			});
+		} else {
+			self.categoriesOn = {};
+		}
+
+	};
+
+    self.redirectIfNoLogged = function() {
+        SessionService.redirectIfNoLogged();
+    };
+
+    self.filterAct = function (d) {
+
+    	if (self.search !== "") {
+    		return self.filterBySearch(d);
+
+		} else {
+			return self.filterByTag(d);
+
+		}
+    };
+
+    self.filterBySearch = function (d) {
+    	var search = replaceSpecialChars(self.search.toLowerCase());
+    	var label = replaceSpecialChars(d.label.toLowerCase());
+    	var text = replaceSpecialChars(d.text.toLowerCase());
+
+        for (i = 0; i < d.tags.length ; i++) {
+            var t = d.tags[i].toLowerCase();
+            var tag = replaceSpecialChars(t);
+            if (tag.includes(search)) return true;
+        }
+
+        return label.includes(search) || text.includes(search);
+    };
+
+    self.filterByTag = function (d) {
+        for (category in self.categoriesOn) {
+            for (i = 0; i < d.tags.length ; i++) {
+                var tag = d.tags[i];
+                if (tag === category) return true;
+            }
+        }
+    };
+
+    self.getActivityStatus = function (act_name) {
+		return ActivityStatusService.getActivityStatus(act_name);
+    };
+
+    var replaceSpecialChars = function (str) {
+        str = str.replace(/[àáâãäå]/g,"a");
+        str = str.replace(/[èéêẽë]/g,"e");
+        str = str.replace(/[ìíîĩï]/g,"i");
+        str = str.replace(/[òóôõö]/g,"o");
+        str = str.replace(/[ùúûũü]/g,"u");
+        str = str.replace(/[ç]/g,"c");
+
+        return str;
+	};
+	
+    (function main() {
+
+        self.redirectIfNoLogged();
+
+        $scope.switchOn = true;
+        self.mainSwitchState = !$scope.switchOn;
+        self.loadActivities();
+    })();
+
+});

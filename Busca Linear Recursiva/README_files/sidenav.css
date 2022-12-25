@@ -1,0 +1,26 @@
+
+.md-sidenav-left {
+    border-right:1px solid #3F51B5;
+}
+
+.sidenav-user {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.md-button.sidenav-button {
+    text-align: right;
+    border-radius: 10px 0 0 10px;
+}
+
+.md-button.sidenav-button:not([disabled]):hover {
+    background-color: #E91E63;
+    color: white;
+}
+
+md-sidenav.md-closed.md-locked-open-add-active {
+    transition: width 0.3s cubic-bezier(0.55, 0, 0.55, 0.2), min-width 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+    width: 220px !important;
+    min-width: 220px !important;
+    transform: translate3d(0%, 0, 0);
+}

@@ -1,0 +1,82 @@
+.md-button {
+    padding: 0 6px 0 6px;
+    margin: 6px 8px 6px 8px;
+    min-width: 88px;
+    border-radius: 3px;
+    font-size: 14px;
+    text-align: center;
+    text-transform: uppercase;
+    text-decoration:none;
+    border: none;
+    outline: none;
+}
+
+.md-button.md-cornered {
+    border-radius: 0;
+}
+
+md-toolbar {
+    width: 100% !important;
+}
+
+.md-toolbar-tools h2 {
+    color: #ffffff;
+    cursor: pointer;
+    padding: 10px 10px;
+}
+
+.select-all-checkboxes {
+    font-size: 16px;
+}
+
+.md-checkbox {
+    font-size: 20px;   
+}
+
+code { 
+    background: hsl(220, 80%, 90%); 
+    font-size: 20;
+}
+
+[ng\:cloak], [ng-cloak], [data-ng-cloak], [x-ng-cloak], .ng-cloak, .x-ng-cloak {
+  display: none !important;
+}
+
+#loading-bar .bar {
+  position: relative;
+}
+
+#logout {
+    font-size: 15px;
+    padding: 60%;
+    size: 5px;
+}
+
+#logout:hover {
+    color: whitesmoke;
+}
+
+#author {
+    background-color:transparent;
+}
+
+#author a {
+    color:white;
+    font-size: medium;
+}
+
+#author a:hover {
+    color: whitesmoke;
+}
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}
+
+ui-view {
+    width: 100% !important;
+    display: block !important;
+    overflow: auto !important;
+}

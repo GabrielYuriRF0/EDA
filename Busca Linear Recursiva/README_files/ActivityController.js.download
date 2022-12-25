@@ -1,0 +1,101 @@
+app.controller("ActivityController", function($scope, $http, 
+		$stateParams, $state, $cookies, ActivityService, ActivityStatusService,
+			cfpLoadingBar, SessionService) {
+		
+	var self = this;
+	
+	self.showCodeArea = function(status) {
+		$scope.codeArea = status;
+	};
+
+	/*
+		sets and shows current activity.
+	*/
+	self.showActivity = function(activityName) {
+		self.currentActivity = {};
+		cfpLoadingBar.start();
+
+		p = ActivityService.getSingleActivity(activityName);
+		
+		p.then(function(activity) {
+			var converter = new showdown.Converter();
+			var text      = activity.text;
+			var html      = converter.makeHtml(text);
+			self.currentActivity['htmlDescription'] = html;
+			
+			// TODO link aqui
+			self.currentActivity['testFile'] = 'http://api-tst-eda.splab.ufcg.edu.br/activity/'+ activityName + '/tests';
+
+			self.currentActivity['name'] = activityName;
+			self.currentActivity['label'] = activity.label;
+		});
+
+		cfpLoadingBar.complete();
+
+	};
+
+	// move to a service
+	self.commit = function(testee) {
+
+		//refreshing
+		$scope.result = "";
+
+		/* redireciona se user não está logado */
+		firebase.auth().onAuthStateChanged(function(user) {
+            if (!user) {
+                $state.go('welcome');
+            }
+        });
+
+		var currentUserEmail = $cookies.get('user_email');
+		var currentUserToken = $cookies.get('user_token');
+
+		// payload do commit
+		var data = JSON.stringify( {'language' : self.language, 'code': testee, 
+			'username' : currentUserEmail, 
+			'activity_name' : self.currentActivity['name']});		
+		
+		$http.defaults.headers.common['Authorization'] = 'Basic ' + currentUserToken;
+
+		var commitURL = "http://api-tst-eda.splab.ufcg.edu.br/commit";
+		//var commitURL = "http://0.0.0.0:5002/commit";
+		$http.post(commitURL, data).then(function successCallback(response, status, headers, config) {
+			
+			$scope.result = response.data.summary;
+
+		}, function errorCallback(response, status, headers, config) {
+			
+			if (response.status == -1)
+				$scope.result = 'Sorry...jtst-server is down.'
+			else if (response.status == 500) {
+				$scope.result = 'Oops... you might have found a bug on the server. \
+				 Please contact me.'
+			} else if (response.status == 503) {
+				$scope.result = 'Oops... the server is taking a nap. Try again in a few seconds.'
+			} else if (response.status == 401) {
+				SessionService.destroy();
+				$state.go('login');
+				
+			}
+		});
+	
+	};
+
+	self.downloadTests = function(url) {
+		
+		$http.get(url).then(function(testes) {
+				var blob = new Blob([angular.toJson(testes.data)], { type:"application/json;charset=utf-8;" });
+				var downloadLink = angular.element('<a></a>');
+				downloadLink.attr('href',window.URL.createObjectURL(blob));
+				downloadLink.attr('download', 'tst.json');
+				downloadLink[0].click();
+		}, function(err){
+			console.log("erro");
+		});
+	};
+
+	(function main() {
+		self.showActivity($stateParams.name);
+		self.language = 'java';
+	})();
+});
