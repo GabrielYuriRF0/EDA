@@ -1,5 +1,5 @@
 import java.util.Scanner;
-class VetorCircularDois {
+class VetorCircular{
     public static void main(String[] args){
         Scanner scanner = new Scanner(System.in);
         String[] numbersStr = scanner.nextLine().split(" ");
