@@ -1,7 +1,0 @@
-
-var config = {
-    apiKey: "AIzaSyC74CdfoZO0RqxGGCo0wh_3H9BlFF4pVHA",
-    authDomain: "tst-eda.firebaseapp.com",
-};
-
-firebase.initializeApp(config);
